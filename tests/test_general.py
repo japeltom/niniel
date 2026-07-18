@@ -2,7 +2,7 @@
 
 import pytest
 
-from niniel.cow.general import all_words, find_factors
+from niniel.cow.general import all_words, find_factors, occurrences
 
 
 # ---------------------------------------------------------------------------
@@ -252,3 +252,70 @@ class TestFindFactors:
         result = list(find_factors(w, n, next_length=True))
         assert set(result[len(n_factors):]) == set(find_factors(w, n + 1))
 
+
+# ---------------------------------------------------------------------------
+# Test the function occurrences.
+# ---------------------------------------------------------------------------
+
+class TestOccurrences:
+
+    def test_basic_occurrences(self):
+        """Test basic occurrence counting."""
+
+        assert occurrences("a", "banana") == 3
+        assert occurrences("b", "banana") == 1
+        assert occurrences("c", "banana") == 0
+        assert occurrences("n", "banana") == 2
+
+        assert occurrences("ab", "ababa") == 2
+        assert occurrences("a", "aaaa") == 4
+        assert occurrences("x", "hello") == 0
+        assert occurrences("lo", "hello") == 1
+
+    def test_overlapping_occurrences(self):
+        """Test that overlapping occurrences are counted correctly."""
+
+        assert occurrences("aa", "aaaa") == 3
+        assert occurrences("010", "01010") == 2
+        assert occurrences("aaa", "aaaaa") == 3
+
+    def test_edge_cases(self):
+        """Test edge cases like empty strings and full matches."""
+
+        assert occurrences("", "hello") == 6 # Empty string matches at every position.
+        assert occurrences("", "") == 1
+        assert occurrences("hello", "hello") == 1
+        assert occurrences("x", "") == 0
+
+    def test_longer_than_word(self):
+        """Test when substring is longer than the word."""
+
+        assert occurrences("hello world", "hello") == 0
+
+    def test_no_occurrences(self):
+        """Test when there are no occurrences."""
+
+        assert occurrences("xyz", "abcdef") == 0
+        assert occurrences("ab", "xxxxxx") == 0
+        assert occurrences("hello", "world") == 0
+
+    @pytest.mark.parametrize("sub,word,expected", [
+        ("0", "0101010", 4),
+        ("1", "0101010", 3),
+        ("01", "0101010", 3),
+        ("10", "0101010", 3),
+        ("010", "0101010", 3),
+        ("101", "0101010", 2),
+    ])
+    def test_binary_patterns(self, sub, word, expected):
+        """Test occurrence counting in binary patterns."""
+
+        assert occurrences(sub, word) == expected
+
+    def test_unicode(self):
+        """Test that unicode characters are handled correctly."""
+
+        assert occurrences("α", "αβα") == 2
+        assert occurrences("β", "αβα") == 1
+        assert occurrences("αβ", "αβα") == 1
+        assert occurrences("αβα", "αβαβαβ") == 2

@@ -312,3 +312,39 @@ def find_factors(str w, int n, bint next_length=False):
         if circ != NULL: free(circ)
         if key_buf != NULL: free(key_buf)
         if trans != NULL: free(trans)
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef int occurrences(str sub, str w):
+    """Find the number of (possibly overlapping) occurrences of ``sub`` in
+    ``w``.
+
+    The number of occurrences for the empty word is ambiguous, and we return
+    its number of occurrences as n+1 for a word of length n.
+
+    Args:
+        sub (str): The substring to search for.
+        w (str): The word to search in.
+
+    Returns:
+        int: The number of occurrences of ``sub`` in ``w``.
+
+    Examples:
+        >>> occurrences("ab", "ababa")
+        2
+        >>> occurrences("aa", "aaaa")
+        3
+        >>> occurrences("x", "hello")
+        0
+    """
+
+    cdef:
+        int count = 0
+        int start = 0
+    while True:
+        start = w.find(sub, start) + 1
+        if start > 0:
+            count += 1
+        else:
+            return count

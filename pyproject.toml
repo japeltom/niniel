@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "niniel"
-version = "0.9.0"
+version = "0.9.1"
 description="Small, simple, and fast math library concentrating on combinatorics on words."
 readme = "README.md"
 requires-python = ">=3.11"

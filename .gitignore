@@ -1,4 +1,5 @@
 __pycache__
 src/niniel.egg-info/
+src/niniel/cow/abelian.c
 src/niniel/cow/general.c
 *.so
