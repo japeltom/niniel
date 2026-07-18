@@ -89,3 +89,55 @@ cpdef bint test_abelian_equivalent(str u, str v, int k = 1):
         return _test_abelian_equivalent_k1(u, v)
     else:
         return _test_abelian_equivalent_k_general(u, v, k)
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cpdef tuple test_abelian_cyclic_avoidance(str w, int k):
+    """Test if the word ``w`` avoids abelian k-powers cyclically.
+    
+    Args:
+        w (str): The word to test.
+        k (int): The power parameter.
+
+    Returns:
+        tuple: A tuple with three elements:
+            - bool: True if the word avoids abelian k-powers circularly, 
+              False otherwise.
+            - int or None: If an abelian k-power is found, the period of this
+              power; None if the word avoids abelian k-powers cyclically.
+            - int or None: If an abelian k-power is found, the starting 
+              position of it; None if the word avoids abelian k-powers
+              cyclically.
+
+    Examples:
+        >>> test_abelian_cyclic_avoidance("abc", 2)
+        (True, None, None)
+        >>> test_abelian_cyclic_avoidance("aa", 2)
+        (False, 1, 0)
+    """
+
+    cdef:
+        str s = w * (k + 1)
+        int m, pos, i
+        bint obstruction
+        str fst
+        int w_len = len(w)
+        int half_len = w_len // 2
+    
+    # By a general result, we only need to consider periods up to half the
+    # length of w.
+    for m in range(1, half_len + 1):
+        for pos in range(0, w_len):
+            # Test if s has an abelian k-power of period m starting at pos.
+            obstruction = True
+            fst = s[pos:pos + m]
+            for i in range(1, k):
+                if not test_abelian_equivalent(s[pos + i*m:pos + (i+1)*m], fst):
+                    obstruction = False
+                    break
+
+            if obstruction:
+                return (False, m, pos)
+
+    return (True, None, None)

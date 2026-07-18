@@ -1,3 +1,4 @@
+# cython: embedsignature=True
 # cython: profile=False
 
 import cython

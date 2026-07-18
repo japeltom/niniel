@@ -2,7 +2,9 @@
 
 import pytest
 
+# Rewrite function names to not have prefix test_.
 from niniel.cow.abelian import test_abelian_equivalent as is_abelian_equivalent
+from niniel.cow.abelian import test_abelian_cyclic_avoidance as abelian_cyclic_avoidance
 
 
 # ---------------------------------------------------------------------------
@@ -109,3 +111,47 @@ class TestAbelianEquivalent:
         
         with pytest.raises(ValueError):
             is_abelian_equivalent("abc", "abc", k=0)
+
+
+# ---------------------------------------------------------------------------
+# Test the function test_abelian_cyclic_avoidance.
+# ---------------------------------------------------------------------------
+
+class TestAbelianCyclicAvoidance:
+
+    @pytest.mark.parametrize("w,k", [
+        ("abcd", 2),
+        ("abcd", 10),
+        ("1000100", 7),
+        ("βαααβαα", 7),
+    ])
+    def test_words_avoiding_k_powers(self, w, k):
+        """Test words that avoid abelian k-powers cyclically."""
+
+        result, period, pos = abelian_cyclic_avoidance(w, k)
+        assert result is True
+        assert period is None
+        assert pos is None
+
+    @pytest.mark.parametrize("w,k,expected_period,expected_pos", [
+        ("aaa", 2, 1, 0),
+        ("abab", 2, 2, 0),
+        ("1000100", 5, 3, 0),
+        ("1000100", 6, 3, 4),
+        ("αβαβ", 2, 2, 0),
+    ])
+    def test_words_with_k_powers(self, w, k, expected_period, expected_pos):
+        """Test words that contain abelian k-powers cyclically."""
+
+        result, period, pos = abelian_cyclic_avoidance(w, k)
+        assert result is False
+        assert period == expected_period
+        assert pos == expected_pos
+
+    def test_empty_string(self):
+        """Test empty string."""
+
+        result, period, pos = abelian_cyclic_avoidance("", 2)
+        assert result is True
+        assert period is None
+        assert pos is None
